@@ -43,4 +43,293 @@
         </a>
     </div>
 </div>
+
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <h3>Staffing Coverage</h3>
+        <span style="font-size: 13px; color: var(--text-muted);">
+            Required daily divided by 24 = hourly target.
+        </span>
+    </div>
+
+    <!-- Controls Form -->
+    <form method="GET" action="/" id="dashboard-controls" style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;">
+        <input type="hidden" name="view" id="view-input" value="{{ selected_view }}">
+        
+        <!-- Department Selector -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label class="form-label" for="dept_id" style="white-space: nowrap; margin-bottom: 0;">Department:</label>
+            <select class="form-control" name="dept_id" id="dept_id" onchange="this.form.submit();" style="width: auto; padding-top: 8px; padding-bottom: 8px; font-weight: 500;">
+                {% if departments %}
+                <option value="all" {% if selected_dept_id == 'all' %}selected{% endif %}>All Departments (Combined)</option>
+                {% for d in departments %}
+                <option value="{{ d.department_id }}" {% if selected_dept_id == d.department_id|string %}selected{% endif %}>{{ d.name }}</option>
+                {% endfor %}
+                {% else %}
+                <option value="">No Departments Defined</option>
+                {% endif %}
+            </select>
+        </div>
+
+        <!-- View Tabs -->
+        <div class="btn-group">
+            <button type="button" class="btn {% if selected_view == 'day' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm" onclick="setView('day')">Day</button>
+            <button type="button" class="btn {% if selected_view == 'week' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm" onclick="setView('week')">Week</button>
+            <button type="button" class="btn {% if selected_view == 'month' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm" onclick="setView('month')">Month</button>
+        </div>
+
+        <!-- Date Navigator -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            {% if selected_view == 'day' %}
+            <a href="/?dept_id={{ selected_dept_id }}&view={{ selected_view }}&date={{ prev_day }}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-left"></i></a>
+            {% elif selected_view == 'week' %}
+            <a href="/?dept_id={{ selected_dept_id }}&view={{ selected_view }}&date={{ prev_week }}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-left"></i></a>
+            {% elif selected_view == 'month' %}
+            <a href="/?dept_id={{ selected_dept_id }}&view={{ selected_view }}&date={{ prev_month }}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-left"></i></a>
+            {% endif %}
+
+            <input class="form-control" type="date" name="date" value="{{ selected_date }}" onchange="this.form.submit();" style="width: auto; padding-top: 6px; padding-bottom: 6px; font-weight: 500;">
+
+            {% if selected_view == 'day' %}
+            <a href="/?dept_id={{ selected_dept_id }}&view={{ selected_view }}&date={{ next_day }}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-right"></i></a>
+            {% elif selected_view == 'week' %}
+            <a href="/?dept_id={{ selected_dept_id }}&view={{ selected_view }}&date={{ next_week }}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-right"></i></a>
+            {% elif selected_view == 'month' %}
+            <a href="/?dept_id={{ selected_dept_id }}&view={{ selected_view }}&date={{ next_month }}" class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-right"></i></a>
+            {% endif %}
+            
+            <a href="/?dept_id={{ selected_dept_id }}&view={{ selected_view }}" class="btn btn-secondary btn-sm" title="Go to Current Date">Today</a>
+        </div>
+    </form>
+
+    <!-- Legend -->
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); font-size: 13px;">
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="display: inline-block; width: 14px; height: 14px; border-radius: 3px; background-color: rgba(244, 63, 94, 0.15); border: 1px solid hsla(343, 90%, 60%, 0.5);"></span> Unattended (0 cover)</span>
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="display: inline-block; width: 14px; height: 14px; border-radius: 3px; background-color: rgba(245, 158, 11, 0.15); border: 1px solid hsla(35, 92%, 58%, 0.5);"></span> Understaffed (&lt; req)</span>
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="display: inline-block; width: 14px; height: 14px; border-radius: 3px; background-color: rgba(16, 185, 129, 0.15); border: 1px solid hsla(142, 70%, 45%, 0.5);"></span> Optimal (== req)</span>
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="display: inline-block; width: 14px; height: 14px; border-radius: 3px; background-color: rgba(59, 130, 246, 0.15); border: 1px solid hsla(224, 76%, 48%, 0.5);"></span> Overstaffed (&gt; req)</span>
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="display: inline-block; width: 14px; height: 14px; border-radius: 3px; background-color: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);"></span> No Requirements (req = 0)</span>
+    </div>
+
+    <!-- View Rendering -->
+    <div style="margin-top: 24px;">
+        {% if not departments %}
+        <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+            <i class="fa-solid fa-building-circle-exclamation" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px;"></i>
+            <h4>No Departments Available</h4>
+            <p style="font-size: 13px; margin-top: 4px; margin-bottom: 16px;">Create a department with required staffing details to visualize scheduling coverage.</p>
+            <a href="/add_department" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Add Department</a>
+        </div>
+        {% else %}
+        
+            {% if selected_view == 'day' %}
+                <!-- DAY VIEW -->
+                <h4 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-regular fa-calendar-check" style="color: var(--primary);"></i>
+                    Coverage Details for {{ selected_date }}
+                </h4>
+                
+                <div class="day-timeline" style="display: flex; flex-direction: column; gap: 10px;">
+                    {% set day_data = coverage_data[selected_date] %}
+                    {% for hour_info in day_data %}
+                        <div class="timeline-row coverage-{{ hour_info.status }}" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-radius: var(--border-radius); border-left: 4px solid transparent; transition: var(--transition);">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div style="font-weight: 600; width: 60px; font-size: 14px;">{{ hour_info.hour_label }}</div>
+                                <div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">
+                                        Target: {{ hour_info.required_count }} | Coverage: {{ hour_info.scheduled_count }}
+                                    </div>
+                                    <div style="font-size: 13px; font-weight: 500; margin-top: 2px;">
+                                        {% if hour_info.employees %}
+                                            <i class="fa-solid fa-user-check" style="font-size: 11px; margin-right: 4px; color: var(--text-muted);"></i>
+                                            {{ hour_info.employees | join(', ') }}
+                                        {% else %}
+                                            <span style="color: var(--text-muted); font-style: italic;">No staff scheduled</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <span class="badge" style="
+                                    {% if hour_info.status == 'unattended' %}
+                                        background-color: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3);
+                                    {% elif hour_info.status == 'understaffed' %}
+                                        background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);
+                                    {% elif hour_info.status == 'optimal' %}
+                                        background-color: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);
+                                    {% elif hour_info.status == 'overstaffed' %}
+                                        background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);
+                                    {% else %}
+                                        background-color: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color);
+                                    {% endif %}
+                                ">
+                                    {{ hour_info.status | upper }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% elif selected_view == 'week' %}
+                <!-- WEEK VIEW -->
+                <h4 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-calendar-week" style="color: var(--primary);"></i>
+                    Weekly Coverage Grid
+                </h4>
+                
+                <div class="table-responsive">
+                    <table class="grid-table" style="width: 100%; border-collapse: separate; border-spacing: 4px; text-align: center;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary); width: 80px;">Time</th>
+                                {% for day in week_days %}
+                                    <th style="padding: 8px; font-size: 13px; font-weight: 600; text-align: center; border-radius: 6px; cursor: pointer; transition: var(--transition);" 
+                                        onclick="window.location.href='/?dept_id={{ selected_dept_id }}&view=day&date={{ day.date_str }}'"
+                                        class="hover-bg-header">
+                                        <div>{{ day.day_name[:3] }}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 400; margin-top: 2px;">{{ day.date_str[5:] | replace('-', '/') }}</div>
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for h in range(24) %}
+                                <tr>
+                                    <td style="font-size: 12px; font-weight: 600; color: var(--text-secondary); padding: 8px 0; text-align: left;">
+                                        {{ "%02d:00" | format(h) }}
+                                    </td>
+                                    {% for day in week_days %}
+                                        {% set cell = coverage_data[day.date_str][h] %}
+                                        <td class="coverage-cell coverage-{{ cell.status }} tooltip-trigger" style="
+                                            border-radius: 6px; 
+                                            height: 38px;
+                                            cursor: pointer;
+                                            position: relative;
+                                            transition: var(--transition);
+                                        " onclick="window.location.href='/?dept_id={{ selected_dept_id }}&view=day&date={{ day.date_str }}'">
+                                            <div class="tooltip" style="
+                                                visibility: hidden;
+                                                width: 220px;
+                                                background-color: var(--bg-secondary);
+                                                color: var(--text-primary);
+                                                text-align: left;
+                                                border-radius: 8px;
+                                                padding: 10px;
+                                                position: absolute;
+                                                z-index: 100;
+                                                bottom: 125%;
+                                                left: 50%;
+                                                transform: translateX(-50%);
+                                                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+                                                border: 1px solid rgba(255, 255, 255, 0.1);
+                                                opacity: 0;
+                                                transition: opacity 0.2s, visibility 0.2s;
+                                                pointer-events: none;
+                                                font-size: 12px;
+                                                font-family: inherit;
+                                            ">
+                                                <div style="font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-bottom: 6px; color: var(--primary);">
+                                                    {{ day.day_name }}, {{ day.date_str }}
+                                                </div>
+                                                <div style="margin-bottom: 2px;">Time: <strong>{{ cell.hour_label }} - {{ "%02d:00" | format(h+1) }}</strong></div>
+                                                <div style="margin-bottom: 2px;">Target: <strong>{{ cell.required_count }}</strong> employees</div>
+                                                <div style="margin-bottom: 6px;">Coverage: <strong>{{ cell.scheduled_count }}</strong> employees</div>
+                                                <div>
+                                                    <strong>Scheduled Staff:</strong>
+                                                    {% if cell.employees %}
+                                                        <div style="color: var(--text-secondary); margin-top: 2px; font-weight: 500;">
+                                                            {{ cell.employees | join(', ') }}
+                                                        </div>
+                                                    {% else %}
+                                                        <div style="color: var(--text-muted); font-style: italic; margin-top: 2px;">None</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% elif selected_view == 'month' %}
+                <!-- MONTH VIEW -->
+                <h4 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px; justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-regular fa-calendar-days" style="color: var(--primary);"></i>
+                        Coverage Overview: {{ month_label }}
+                    </span>
+                </h4>
+                
+                <div class="table-responsive">
+                    <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                        <thead>
+                            <tr>
+                                {% for day_name in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] %}
+                                    <th style="padding: 10px; font-size: 13px; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); text-align: center;">
+                                        {{ day_name }}
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for week in month_calendar %}
+                                <tr>
+                                    {% for day_data in week %}
+                                        <td style="border: 1px solid var(--border-color); vertical-align: top; height: 100px; padding: 6px; transition: var(--transition);"
+                                            class="{% if day_data.day > 0 %}hover-month-cell{% endif %}">
+                                            {% if day_data.day > 0 %}
+                                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                    <span style="font-weight: 700; font-size: 13px; color: {% if day_data.date_str == selected_date %}var(--primary){% else %}var(--text-primary){% endif %};">
+                                                        {{ day_data.day }}
+                                                    </span>
+                                                    <a href="/?dept_id={{ selected_dept_id }}&view=day&date={{ day_data.date_str }}" style="font-size: 10px; color: var(--text-muted); text-decoration: none;" title="View Details">
+                                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                                    </a>
+                                                </div>
+                                                
+                                                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;">
+                                                    {% if day_data.stats.unattended > 0 %}
+                                                        <div style="background-color: rgba(244, 63, 94, 0.12); color: #f43f5e; padding: 2px 6px; border-radius: 4px; font-weight: 600; border: 1px solid rgba(244, 63, 94, 0.2);">
+                                                            🔴 {{ day_data.stats.unattended }}h unattended
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if day_data.stats.understaffed > 0 %}
+                                                        <div style="background-color: rgba(245, 158, 11, 0.12); color: #f59e0b; padding: 2px 6px; border-radius: 4px; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.2);">
+                                                            🟡 {{ day_data.stats.understaffed }}h under
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if day_data.stats.optimal > 0 %}
+                                                        <div style="background-color: rgba(16, 185, 129, 0.12); color: #10b981; padding: 2px 6px; border-radius: 4px; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.2);">
+                                                            🟢 {{ day_data.stats.optimal }}h optimal
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if day_data.stats.overstaffed > 0 %}
+                                                        <div style="background-color: rgba(59, 130, 246, 0.12); color: #3b82f6; padding: 2px 6px; border-radius: 4px; font-weight: 600; border: 1px solid rgba(59, 130, 246, 0.2);">
+                                                            🔵 {{ day_data.stats.overstaffed }}h surplus
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+            
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function setView(viewName) {
+    document.getElementById('view-input').value = viewName;
+    document.getElementById('dashboard-controls').submit();
+}
+</script>
 {% endblock %}

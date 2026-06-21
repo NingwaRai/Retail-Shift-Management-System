@@ -28,6 +28,10 @@
                     <i class="fa-solid fa-users menu-icon"></i>
                     <span>Employees</span>
                 </a>
+                <a href="/departments" class="menu-item {% if '/department' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-building menu-icon"></i>
+                    <span>Departments</span>
+                </a>
                 <a href="/shifts" class="menu-item {% if '/shift' in request.path %}active{% endif %}">
                     <i class="fa-solid fa-calendar-days menu-icon"></i>
                     <span>Shifts</span>

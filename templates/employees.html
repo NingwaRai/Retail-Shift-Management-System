@@ -19,6 +19,7 @@
                 <tr>
                     <th>Employee</th>
                     <th>Position</th>
+                    <th>Department</th>
                     <th>Contact Info</th>
                     <th style="text-align: right;">Actions</th>
                 </tr>
@@ -39,6 +40,13 @@
                     </td>
                     <td>
                         <span class="badge badge-position">{{ e.position }}</span>
+                    </td>
+                    <td>
+                        {% if e.department_name %}
+                            <span class="badge badge-dept" style="background-color: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.2);">{{ e.department_name }}</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-style: italic; font-size: 13px;">Unassigned</span>
+                        {% endif %}
                     </td>
                     <td>
                         <div style="font-size: 14px;">{{ e.email }}</div>

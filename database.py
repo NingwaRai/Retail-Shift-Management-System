@@ -13,6 +13,14 @@ def create_tables():
     conn = connect()
     cursor = conn.cursor()
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS departments(
+        department_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        description TEXT,
+        required_employees_per_day REAL NOT NULL
+    )
+    """)
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS employees(
@@ -27,11 +35,21 @@ def create_tables():
 
         email TEXT,
 
-        position TEXT
+        position TEXT,
+        
+        department_id INTEGER,
+        
+        FOREIGN KEY(department_id)
+        REFERENCES departments(department_id)
 
     )
     """)
 
+    # Check if department_id column already exists in employees table (for older installations)
+    cursor.execute("PRAGMA table_info(employees)")
+    columns = [row[1] for row in cursor.fetchall()]
+    if "department_id" not in columns:
+        cursor.execute("ALTER TABLE employees ADD COLUMN department_id INTEGER REFERENCES departments(department_id)")
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS availability(
