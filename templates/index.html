@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ShiftFlow{% endblock %}
+{% block header_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-stats">
+    <a href="/employees" style="text-decoration: none; color: inherit;">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Employees</h3>
+                <div class="stat-number">{{ employee_count }}</div>
+            </div>
+        </div>
+    </a>
+
+    <a href="/shifts" style="text-decoration: none; color: inherit;">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Scheduled Shifts</h3>
+                <div class="stat-number">{{ shift_count }}</div>
+            </div>
+        </div>
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Quick Actions</h3>
+    </div>
+    <div style="display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap;">
+        <a href="/add_employee" class="btn btn-primary">
+            <i class="fa-solid fa-user-plus"></i> Add Employee
+        </a>
+        <a href="/add_shift" class="btn btn-secondary">
+            <i class="fa-solid fa-calendar-plus"></i> Add Shift
+        </a>
+    </div>
+</div>
+{% endblock %}

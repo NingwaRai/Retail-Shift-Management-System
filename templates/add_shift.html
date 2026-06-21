@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Add Shift - ShiftFlow{% endblock %}
+{% block header_title %}Add Shift{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header">
+        <h3>Schedule New Shift</h3>
+    </div>
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group form-group-full">
+                <label class="form-label" for="employee_id">Assign Employee</label>
+                <select class="form-control" name="employee_id" id="employee_id" required>
+                    <option value="" disabled selected>Select an employee...</option>
+                    {% for e in employees %}
+                    <option value="{{ e.employee_id }}">{{ e.first_name }} {{ e.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="shift_date">Shift Date</label>
+                <input class="form-control" type="date" name="shift_date" id="shift_date" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="day">Day of Week</label>
+                <select class="form-control" name="day" id="day" required>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="start">Start Time</label>
+                <input class="form-control" type="time" name="start" id="start" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="end">End Time</label>
+                <input class="form-control" type="time" name="end" id="end" required>
+            </div>
+            <div class="form-group form-group-full">
+                <label class="form-label" for="position">Required Position</label>
+                <input class="form-control" name="position" id="position" placeholder="Sales Associate" required>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="/shifts" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Shift</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Automatically select the correct day of week when shift_date changes
+    document.getElementById('shift_date').addEventListener('change', function() {
+        const dateVal = new Date(this.value + 'T00:00:00');
+        if (!isNaN(dateVal.getTime())) {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayName = days[dateVal.getDay()];
+            document.getElementById('day').value = dayName;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Retail Shift Management{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-clock-rotate-left brand-icon"></i>
+                <span class="brand-text">ShiftFlow</span>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="/" class="menu-item {% if request.path == '/' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie menu-icon"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/employees" class="menu-item {% if '/employee' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-users menu-icon"></i>
+                    <span>Employees</span>
+                </a>
+                <a href="/shifts" class="menu-item {% if '/shift' in request.path %}active{% endif %}">
+                    <i class="fa-solid fa-calendar-days menu-icon"></i>
+                    <span>Shifts</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p class="footer-text">Retail Shift v1.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="welcome-msg">
+                    <h2>{% block header_title %}Welcome back!{% endblock %}</h2>
+                    <p class="subtitle">Here is the latest overview of your team schedule.</p>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

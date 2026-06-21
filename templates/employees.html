@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Employees - ShiftFlow{% endblock %}
+{% block header_title %}Employees{% endblock %}
+
+{% block content %}
+<div class="header-actions">
+    <span class="page-title">Team Roster</span>
+    <a href="/add_employee" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus"></i> Add Employee
+    </a>
+</div>
+
+{% if employees %}
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Position</th>
+                    <th>Contact Info</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in employees %}
+                <tr>
+                    <td>
+                        <div class="employee-avatar-name">
+                            <div class="avatar-placeholder">
+                                {{ e.first_name[0] | upper }}{{ e.last_name[0] | upper }}
+                            </div>
+                            <div>
+                                <div class="employee-name">{{ e.first_name }} {{ e.last_name }}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">ID: #{{ e.employee_id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-position">{{ e.position }}</span>
+                    </td>
+                    <td>
+                        <div style="font-size: 14px;">{{ e.email }}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">{{ e.phone }}</div>
+                    </td>
+                    <td>
+                        <div class="btn-group" style="justify-content: flex-end;">
+                            <a href="/edit_employee/{{ e.employee_id }}" class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </a>
+                            <a href="/delete_employee/{{ e.employee_id }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this employee?');">
+                                <i class="fa-solid fa-trash-can"></i> Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card empty-state">
+    <div class="empty-icon">
+        <i class="fa-solid fa-users-slash"></i>
+    </div>
+    <h3>No Employees Found</h3>
+    <p>Get started by adding a team member to the system.</p>
+    <a href="/add_employee" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus"></i> Add Employee
+    </a>
+</div>
+{% endif %}
+{% endblock %}

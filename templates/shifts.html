@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Shift Schedule - ShiftFlow{% endblock %}
+{% block header_title %}Shift Schedule{% endblock %}
+
+{% block content %}
+<div class="header-actions">
+    <span class="page-title">Weekly Schedule</span>
+    <a href="/add_shift" class="btn btn-primary">
+        <i class="fa-solid fa-calendar-plus"></i> Add Shift
+    </a>
+</div>
+
+{% if shifts %}
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Date / Day</th>
+                    <th>Shift Time</th>
+                    <th>Required Position</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in shifts %}
+                <tr>
+                    <td>
+                        <div class="employee-avatar-name">
+                            <div class="avatar-placeholder" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);">
+                                {% if s.first_name %}
+                                    {{ s.first_name[0] | upper }}
+                                {% else %}
+                                    ?
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="employee-name">
+                                    {% if s.first_name %}
+                                        {{ s.first_name }}
+                                    {% else %}
+                                        <span style="color: var(--text-muted); font-style: italic;">Unassigned</span>
+                                    {% endif %}
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Shift ID: #{{ s.shift_id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-date"><i class="fa-regular fa-calendar"></i> {{ s.shift_date }}</span>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; padding-left: 6px;">{{ s.day_of_week }}</div>
+                    </td>
+                    <td>
+                        <span class="badge badge-time"><i class="fa-regular fa-clock"></i> {{ s.start_time }} - {{ s.end_time }}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge-position">{{ s.position_required }}</span>
+                    </td>
+                    <td>
+                        <div class="btn-group" style="justify-content: flex-end;">
+                            <a href="/edit_shift/{{ s.shift_id }}" class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </a>
+                            <a href="/delete_shift/{{ s.shift_id }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this shift?');">
+                                <i class="fa-solid fa-trash-can"></i> Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card empty-state">
+    <div class="empty-icon">
+        <i class="fa-regular fa-calendar-xmark"></i>
+    </div>
+    <h3>No Scheduled Shifts</h3>
+    <p>There are no shifts scheduled yet. Build your first schedule now.</p>
+    <a href="/add_shift" class="btn btn-primary">
+        <i class="fa-solid fa-calendar-plus"></i> Add Shift
+    </a>
+</div>
+{% endif %}
+{% endblock %}
