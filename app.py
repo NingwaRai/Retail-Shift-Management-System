@@ -331,13 +331,16 @@ def add_employee():
 # -------------------------
 # EMPLOYEE UPDATE
 # -------------------------
-
 @app.route("/edit_employee/<int:id>", methods=["GET", "POST"])
 def edit_employee(id):
     conn = db()
+
     if request.method == "POST":
+
         dept_id = request.form.get("department_id")
         dept_id = int(dept_id) if dept_id else None
+
+        # Update employee information
         conn.execute(
             """
             UPDATE employees
@@ -354,13 +357,96 @@ def edit_employee(id):
                 id
             )
         )
+
+
+        # -------------------------
+        # UPDATE AVAILABILITY
+        # -------------------------
+
+        # Remove old availability records
+        conn.execute(
+            "DELETE FROM availability WHERE employee_id=?",
+            (id,)
+        )
+
+
+        # Get selected days from checkboxes
+        selected_days = request.form.getlist("available_days")
+
+
+        days = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        ]
+
+
+        # Insert new availability
+        for day in days:
+
+            available = "Yes" if day in selected_days else "No"
+
+            conn.execute(
+                """
+                INSERT INTO availability
+                (employee_id, day_of_week, available)
+                VALUES (?, ?, ?)
+                """,
+                (
+                    id,
+                    day,
+                    available
+                )
+            )
+
+
         conn.commit()
+
         return redirect("/employees")
 
-    employee = conn.execute("SELECT * FROM employees WHERE employee_id=?", (id,)).fetchone()
-    depts = conn.execute("SELECT * FROM departments").fetchall()
-    return render_template("edit_employee.html", employee=employee, departments=depts)
 
+
+    # GET request
+
+    employee = conn.execute(
+        "SELECT * FROM employees WHERE employee_id=?",
+        (id,)
+    ).fetchone()
+
+
+    depts = conn.execute(
+        "SELECT * FROM departments"
+    ).fetchall()
+
+
+    # Get current available days
+    availability = conn.execute(
+        """
+        SELECT day_of_week
+        FROM availability
+        WHERE employee_id=?
+        AND available='Yes'
+        """,
+        (id,)
+    ).fetchall()
+
+
+    available_days = [
+        row["day_of_week"]
+        for row in availability
+    ]
+
+
+    return render_template(
+        "edit_employee.html",
+        employee=employee,
+        departments=depts,
+        available_days=available_days
+    )
 
 # -------------------------
 # EMPLOYEE DELETE

@@ -9,10 +9,11 @@ ShiftFlow is a modern, responsive Flask-based web application designed for retai
 1. **Roster Management (Employees)**:
    - Add, edit, list, and delete employee profiles.
    - Store positions, contact information (phone, email), and department associations.
+   - Configure weekly availability profiles (select days of the week the employee is available) to enforce shift assignment rules.
 
 2. **Shift Scheduling**:
-   - Schedule shifts with date, day of week, start/end times, and required roles.
-   - Automatic weekday detection when a calendar date is picked.
+   - Schedule shifts with date, start/end times, and required roles.
+   - Automated weekday translation and validation constraints in the backend: employees cannot be assigned shifts on days they are marked unavailable. Redundant day of week inputs have been completely removed.
 
 3. **Department Management**:
    - Define business departments (e.g. Sales, Customer Support).
