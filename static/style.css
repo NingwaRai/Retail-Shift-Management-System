@@ -130,7 +130,8 @@ body {
     flex-direction: column;
     padding: 40px;
     background-color: var(--bg-primary);
-    min-width: 0; /* Prevents flex items from breaking layout width */
+    min-width: 0;
+    /* Prevents flex items from breaking layout width */
 }
 
 /* Top Navigation / Header */
@@ -371,7 +372,7 @@ body {
     font-weight: 700;
     font-size: 13px;
     color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .employee-name {
@@ -494,7 +495,7 @@ select.form-control {
     .app-container {
         flex-direction: column;
     }
-    
+
     .sidebar {
         width: 100%;
         height: auto;
@@ -502,31 +503,31 @@ select.form-control {
         border-bottom: 1px solid var(--border-color);
         padding: 16px 20px;
     }
-    
+
     .sidebar-brand {
         margin-bottom: 20px;
     }
-    
+
     .sidebar-menu {
         flex-direction: row;
         overflow-x: auto;
         padding-bottom: 8px;
         gap: 8px;
     }
-    
+
     .menu-item {
         padding: 8px 12px;
         white-space: nowrap;
     }
-    
+
     .sidebar-footer {
         display: none;
     }
-    
+
     .main-content {
         padding: 24px 20px;
     }
-    
+
     .top-bar h2 {
         font-size: 24px;
     }
@@ -537,6 +538,7 @@ select.form-control {
     background-color: rgba(244, 63, 94, 0.08);
     border-left-color: #f43f5e;
 }
+
 .timeline-row.coverage-unattended:hover {
     background-color: rgba(244, 63, 94, 0.15);
 }
@@ -545,6 +547,7 @@ select.form-control {
     background-color: rgba(245, 158, 11, 0.08);
     border-left-color: #f59e0b;
 }
+
 .timeline-row.coverage-understaffed:hover {
     background-color: rgba(245, 158, 11, 0.15);
 }
@@ -553,6 +556,7 @@ select.form-control {
     background-color: rgba(16, 185, 129, 0.08);
     border-left-color: #10b981;
 }
+
 .timeline-row.coverage-optimal:hover {
     background-color: rgba(16, 185, 129, 0.15);
 }
@@ -561,6 +565,7 @@ select.form-control {
     background-color: rgba(59, 130, 246, 0.08);
     border-left-color: #3b82f6;
 }
+
 .timeline-row.coverage-overstaffed:hover {
     background-color: rgba(59, 130, 246, 0.15);
 }
@@ -575,6 +580,7 @@ select.form-control {
     background-color: rgba(244, 63, 94, 0.2);
     border: 1px solid rgba(244, 63, 94, 0.4);
 }
+
 .coverage-cell.coverage-unattended:hover {
     background-color: rgba(244, 63, 94, 0.4);
 }
@@ -583,6 +589,7 @@ select.form-control {
     background-color: rgba(245, 158, 11, 0.2);
     border: 1px solid rgba(245, 158, 11, 0.4);
 }
+
 .coverage-cell.coverage-understaffed:hover {
     background-color: rgba(245, 158, 11, 0.4);
 }
@@ -591,6 +598,7 @@ select.form-control {
     background-color: rgba(16, 185, 129, 0.2);
     border: 1px solid rgba(16, 185, 129, 0.4);
 }
+
 .coverage-cell.coverage-optimal:hover {
     background-color: rgba(16, 185, 129, 0.4);
 }
@@ -599,6 +607,7 @@ select.form-control {
     background-color: rgba(59, 130, 246, 0.2);
     border: 1px solid rgba(59, 130, 246, 0.4);
 }
+
 .coverage-cell.coverage-overstaffed:hover {
     background-color: rgba(59, 130, 246, 0.4);
 }
@@ -623,6 +632,7 @@ select.form-control {
 .hover-month-cell {
     background-color: rgba(255, 255, 255, 0.01);
 }
+
 .hover-month-cell:hover {
     background-color: rgba(255, 255, 255, 0.04);
 }
@@ -636,10 +646,12 @@ select.form-control {
     .day-view-container {
         flex-direction: column !important;
     }
+
     .donut-chart-card {
         width: 100% !important;
         position: static !important;
     }
+
     .day-timeline {
         width: 100% !important;
     }
