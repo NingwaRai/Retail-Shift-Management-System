@@ -8,44 +8,39 @@
     <div class="card-header">
         <h3>Schedule New Shift</h3>
     </div>
+    
+    {% if error %}
+    <div style="background-color: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent); color: var(--accent); padding: 12px; border-radius: var(--border-radius); margin-bottom: 20px; font-size: 14px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> {{ error }}
+    </div>
+    {% endif %}
+    
     <form method="POST">
         <div class="form-grid">
             <div class="form-group form-group-full">
                 <label class="form-label" for="employee_id">Assign Employee</label>
                 <select class="form-control" name="employee_id" id="employee_id" required>
-                    <option value="" disabled selected>Select an employee...</option>
+                    <option value="" disabled {% if not form_data or not form_data.employee_id %}selected{% endif %}>Select an employee...</option>
                     {% for e in employees %}
-                    <option value="{{ e.employee_id }}">{{ e.first_name }} {{ e.last_name }}</option>
+                    <option value="{{ e.employee_id }}" {% if form_data and form_data.employee_id|int == e.employee_id|int %}selected{% endif %}>{{ e.first_name }} {{ e.last_name }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group form-group-full">
                 <label class="form-label" for="shift_date">Shift Date</label>
-                <input class="form-control" type="date" name="shift_date" id="shift_date" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="day">Day of Week</label>
-                <select class="form-control" name="day" id="day" required>
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                </select>
+                <input class="form-control" type="date" name="shift_date" id="shift_date" value="{{ form_data.shift_date if form_data else '' }}" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="start">Start Time</label>
-                <input class="form-control" type="time" name="start" id="start" required>
+                <input class="form-control" type="time" name="start" id="start" value="{{ form_data.start if form_data else '' }}" required>
             </div>
             <div class="form-group">
                 <label class="form-label" for="end">End Time</label>
-                <input class="form-control" type="time" name="end" id="end" required>
+                <input class="form-control" type="time" name="end" id="end" value="{{ form_data.end if form_data else '' }}" required>
             </div>
             <div class="form-group form-group-full">
                 <label class="form-label" for="position">Required Position</label>
-                <input class="form-control" name="position" id="position" placeholder="Sales Associate" required>
+                <input class="form-control" name="position" id="position" placeholder="Sales Associate" value="{{ form_data.position if form_data else '' }}" required>
             </div>
         </div>
         <div class="form-actions">
@@ -54,16 +49,4 @@
         </div>
     </form>
 </div>
-
-<script>
-    // Automatically select the correct day of week when shift_date changes
-    document.getElementById('shift_date').addEventListener('change', function() {
-        const dateVal = new Date(this.value + 'T00:00:00');
-        if (!isNaN(dateVal.getTime())) {
-            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const dayName = days[dateVal.getDay()];
-            document.getElementById('day').value = dayName;
-        }
-    });
-</script>
 {% endblock %}

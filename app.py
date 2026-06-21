@@ -488,175 +488,137 @@ def shifts():
 # SHIFT CREATE
 # -------------------------
 
-
-@app.route("/add_shift",
-methods=["GET","POST"])
-
+@app.route("/add_shift", methods=["GET", "POST"])
 def add_shift():
+    conn = db()
+    error = None
 
+    if request.method == "POST":
+        employee_id = int(request.form["employee_id"])
+        shift_date_str = request.form["shift_date"]
+        
+        # Calculate day of week from date automatically
+        dt = datetime.strptime(shift_date_str, "%Y-%m-%d")
+        day_of_week = dt.strftime("%A")
+        
+        # Check weekly availability constraint
+        avail_count = conn.execute(
+            "SELECT COUNT(*) as count FROM availability WHERE employee_id = ?",
+            (employee_id,)
+        ).fetchone()["count"]
+        
+        is_available = True
+        if avail_count > 0:
+            match = conn.execute(
+                "SELECT COUNT(*) as count FROM availability WHERE employee_id = ? AND day_of_week = ? AND available = 'Yes'",
+                (employee_id, day_of_week)
+            ).fetchone()["count"]
+            if match == 0:
+                is_available = False
+                
+        if is_available:
+            conn.execute(
+                """
+                INSERT INTO shifts
+                (employee_id, shift_date, day_of_week, start_time, end_time, position_required)
+                VALUES(?,?,?,?,?,?)
+                """,
+                (
+                    employee_id,
+                    shift_date_str,
+                    day_of_week,
+                    request.form["start"],
+                    request.form["end"],
+                    request.form["position"]
+                )
+            )
+            conn.commit()
+            return redirect("/shifts")
+        else:
+            error = f"Employee is not available on {day_of_week}s."
 
-    conn=db()
-
-
-    if request.method=="POST":
-
-
-        conn.execute(
-
-        """
-
-        INSERT INTO shifts
-
-        (
-        employee_id,
-        shift_date,
-        day_of_week,
-        start_time,
-        end_time,
-        position_required
-        )
-
-        VALUES(?,?,?,?,?,?)
-
-        """,
-
-        (
-
-        request.form["employee_id"],
-
-        request.form["shift_date"],
-
-        request.form["day"],
-
-        request.form["start"],
-
-        request.form["end"],
-
-        request.form["position"]
-
-        ))
-
-
-        conn.commit()
-
-
-        return redirect("/shifts")
-
-
-
-    employees=conn.execute(
-
-    "SELECT * FROM employees"
-
-    ).fetchall()
-
-
-
+    employees = conn.execute("SELECT * FROM employees").fetchall()
     return render_template(
-
         "add_shift.html",
-
-        employees=employees
-
+        employees=employees,
+        error=error,
+        form_data=request.form if request.method == "POST" else {}
     )
-
-
-
 
 
 # -------------------------
 # SHIFT UPDATE
 # -------------------------
 
-
-@app.route("/edit_shift/<int:id>",
-methods=["GET","POST"])
-
+@app.route("/edit_shift/<int:id>", methods=["GET", "POST"])
 def edit_shift(id):
+    conn = db()
+    error = None
 
+    if request.method == "POST":
+        employee_id = int(request.form["employee_id"])
+        shift_date_str = request.form["shift_date"]
+        
+        # Calculate day of week from date automatically
+        dt = datetime.strptime(shift_date_str, "%Y-%m-%d")
+        day_of_week = dt.strftime("%A")
+        
+        # Check weekly availability constraint
+        avail_count = conn.execute(
+            "SELECT COUNT(*) as count FROM availability WHERE employee_id = ?",
+            (employee_id,)
+        ).fetchone()["count"]
+        
+        is_available = True
+        if avail_count > 0:
+            match = conn.execute(
+                "SELECT COUNT(*) as count FROM availability WHERE employee_id = ? AND day_of_week = ? AND available = 'Yes'",
+                (employee_id, day_of_week)
+            ).fetchone()["count"]
+            if match == 0:
+                is_available = False
+                
+        if is_available:
+            conn.execute(
+                """
+                UPDATE shifts
+                SET employee_id=?, shift_date=?, day_of_week=?, start_time=?, end_time=?, position_required=?
+                WHERE shift_id=?
+                """,
+                (
+                    employee_id,
+                    shift_date_str,
+                    day_of_week,
+                    request.form["start"],
+                    request.form["end"],
+                    request.form["position"],
+                    id
+                )
+            )
+            conn.commit()
+            return redirect("/shifts")
+        else:
+            error = f"Employee is not available on {day_of_week}s."
 
-    conn=db()
-
-
-
-    if request.method=="POST":
-
-
-        conn.execute(
-
-        """
-
-        UPDATE shifts
-
-        SET employee_id=?,
-
-        shift_date=?,
-
-        day_of_week=?,
-
-        start_time=?,
-
-        end_time=?,
-
-        position_required=?
-
-        WHERE shift_id=?
-
-        """,
-
-        (
-
-        request.form["employee_id"],
-
-        request.form["shift_date"],
-
-        request.form["day"],
-
-        request.form["start"],
-
-        request.form["end"],
-
-        request.form["position"],
-
-        id
-
-        ))
-
-
-
-        conn.commit()
-
-
-        return redirect("/shifts")
-
-
-
-    shift=conn.execute(
-
-    "SELECT * FROM shifts WHERE shift_id=?",
-
-    (id,)
-
-    ).fetchone()
-
-
-
-    employees=conn.execute(
-
-    "SELECT * FROM employees"
-
-    ).fetchall()
-
-
-
+    shift = conn.execute("SELECT * FROM shifts WHERE shift_id=?", (id,)).fetchone()
+    employees = conn.execute("SELECT * FROM employees").fetchall()
+    
+    # If validation failed, pass back a mock shift containing the user's submitted values
+    if error:
+        shift = {
+            "shift_id": id,
+            "employee_id": int(request.form["employee_id"]),
+            "shift_date": request.form["shift_date"],
+            "start_time": request.form["start"],
+            "end_time": request.form["end"],
+            "position_required": request.form["position"]
+        }
+        
     return render_template(
-
         "edit_shift.html",
-
         shift=shift,
-
-        employees=employees
-
+        employees=employees,
+        error=error
     )
 
 

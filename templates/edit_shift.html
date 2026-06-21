@@ -8,29 +8,28 @@
     <div class="card-header">
         <h3>Edit Scheduled Shift</h3>
     </div>
+    
+    {% if error %}
+    <div style="background-color: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent); color: var(--accent); padding: 12px; border-radius: var(--border-radius); margin-bottom: 20px; font-size: 14px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> {{ error }}
+    </div>
+    {% endif %}
+    
     <form method="POST">
         <div class="form-grid">
             <div class="form-group form-group-full">
                 <label class="form-label" for="employee_id">Assign Employee</label>
                 <select class="form-control" name="employee_id" id="employee_id" required>
                     {% for e in employees %}
-                    <option value="{{ e.employee_id }}" {% if e.employee_id == shift.employee_id %}selected{% endif %}>
+                    <option value="{{ e.employee_id }}" {% if e.employee_id|int == shift.employee_id|int %}selected{% endif %}>
                         {{ e.first_name }} {{ e.last_name }}
                     </option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group form-group-full">
                 <label class="form-label" for="shift_date">Shift Date</label>
                 <input class="form-control" type="date" name="shift_date" id="shift_date" value="{{ shift.shift_date }}" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="day">Day of Week</label>
-                <select class="form-control" name="day" id="day" required>
-                    {% for d in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
-                    <option value="{{ d }}" {% if d == shift.day_of_week %}selected{% endif %}>{{ d }}</option>
-                    {% endfor %}
-                </select>
             </div>
             <div class="form-group">
                 <label class="form-label" for="start">Start Time</label>
@@ -51,16 +50,4 @@
         </div>
     </form>
 </div>
-
-<script>
-    // Automatically select the correct day of week when shift_date changes
-    document.getElementById('shift_date').addEventListener('change', function() {
-        const dateVal = new Date(this.value + 'T00:00:00');
-        if (!isNaN(dateVal.getTime())) {
-            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const dayName = days[dateVal.getDay()];
-            document.getElementById('day').value = dayName;
-        }
-    });
-</script>
 {% endblock %}
